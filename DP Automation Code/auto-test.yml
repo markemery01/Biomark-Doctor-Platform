@@ -1,0 +1,35 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 18
+    commands:
+      - npm install -g cypress
+      - sudo apt-get update
+      - sudo apt-get install -y libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
+
+  pre_build:
+    commands:
+      - npm install
+  build:
+    commands:
+      - set +e
+      - npm run $TEST_NAME
+      - set -e
+  post_build:
+    commands:
+      - cd cypress && zip -r $TEST_RESULT_FILE screenshots videos
+      #- aws s3 rm $RESULT_BUCKET --recursive
+      - ls
+      - aws s3 cp $TEST_RESULT_FILE $RESULT_BUCKET
+
+
+artifacts:
+  files:
+    - '**/*'
+  name: cypress-tests
+
+cache:
+  paths:
+    - node_modules/

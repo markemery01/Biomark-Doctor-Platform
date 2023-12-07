@@ -1,0 +1,13 @@
+version: 0.2
+
+phases:
+  build:
+    commands:
+      - cd $CODEBUILD_SRC_DIR/src  && npm install
+      - cd $CODEBUILD_SRC_DIR/src  && npm run build:development:$PLATFORM_NAME
+      - echo "******** Cleaning S3 objects ********"
+      - aws s3 rm $S3_BUCKET --recursive
+artifacts:
+  files:
+    - "**/*"
+  base-directory: build
